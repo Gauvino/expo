@@ -41,6 +41,7 @@
 
 ### 💡 Others
 
+- Skip route-name reconciliation for layout navigators with static filesystem routes. ([#TODO](https://github.com/expo/expo/pull/TODO) by [@Ubax](https://github.com/Ubax))
 - Remove `UNSTABLE_routeNamesChangeBehavior` and unhandled-state replay from `useNavigationBuilder`. ([#TODO](https://github.com/expo/expo/pull/TODO) by [@Ubax](https://github.com/Ubax))
 - Remove `useOnlyUserDefinedScreens` from `withLayoutContext` ([#47983](https://github.com/expo/expo/pull/47983) by [@Ubax](https://github.com/Ubax))
 - Move `@testing-library/jest-dom` and `@testing-library/user-event` from `dependencies` to `devDependencies` ([#47820](https://github.com/expo/expo/pull/47820) by [@krystofwoldrich](https://github.com/krystofwoldrich))
