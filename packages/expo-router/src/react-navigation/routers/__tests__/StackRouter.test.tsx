@@ -131,6 +131,48 @@ test('gets rehydrated state from partial state', () => {
   });
 });
 
+test('treats all routes as active when rehydrating state without an index', () => {
+  const router = StackRouter({});
+
+  expect(
+    router.getRehydratedState(
+      {
+        routes: [
+          { key: 'bar-0', name: 'bar' },
+          {
+            key: 'baz-1',
+            name: 'baz',
+            params: { id: '42' },
+            path: '/42',
+            state: { routes: [{ name: 'qux' }] },
+          },
+        ],
+      },
+      {
+        routeNames: ['bar', 'baz'],
+        routeParamList: {},
+        routeGetIdList: {},
+      }
+    )
+  ).toEqual({
+    index: 1,
+    key: 'stack-test',
+    routeNames: ['bar', 'baz'],
+    routes: [
+      { key: 'bar-0', name: 'bar' },
+      {
+        key: 'baz-1',
+        name: 'baz',
+        params: { id: '42' },
+        path: '/42',
+        state: { routes: [{ name: 'qux' }] },
+      },
+    ],
+    stale: false,
+    type: 'stack',
+  });
+});
+
 test("doesn't rehydrate state if it's not stale", () => {
   const router = StackRouter({});
 
@@ -151,6 +193,27 @@ test("doesn't rehydrate state if it's not stale", () => {
       routeGetIdList: {},
     })
   ).toBe(state);
+});
+
+test('keeps the focused route when rehydration filters an earlier active route', () => {
+  const result = StackRouter({}).getRehydratedState(
+    {
+      index: 1,
+      routes: [
+        { key: 'removed', name: 'removed' },
+        { key: 'focused', name: 'focused' },
+        { key: 'preloaded', name: 'preloaded' },
+      ],
+    },
+    {
+      routeNames: ['focused', 'preloaded'],
+      routeParamList: {},
+      routeGetIdList: {},
+    }
+  );
+
+  expect(result.index).toBe(0);
+  expect(result.routes.map((route) => route.key)).toEqual(['focused', 'preloaded']);
 });
 
 test('gets state on route names change', () => {
@@ -2729,6 +2792,66 @@ test('uses preloaded route when pushing a route with the same ID', () => {
         name: 'bar',
       },
     ],
+  });
+});
+
+test('partitions active history from multiple preloaded routes', () => {
+  const router = StackRouter({});
+  const options: RouterConfigOptions = {
+    routeNames: ['a', 'b', 'p1', 'p2', 'c'],
+    routeParamList: {},
+    routeGetIdList: {},
+  };
+  const state = {
+    stale: false as const,
+    type: 'stack' as const,
+    key: 'root',
+    index: 1,
+    routeNames: options.routeNames,
+    routes: [
+      { key: 'a-key', name: 'a', state: { index: 0, routes: [] } },
+      { key: 'b-key', name: 'b' },
+      { key: 'p1-key', name: 'p1', params: { preload: 1 } },
+      { key: 'p2-key', name: 'p2', params: { preload: 2 } },
+    ],
+  };
+
+  expect(router.getStateForAction(state, StackActions.push('p2', { preload: 2 }), options)).toEqual(
+    {
+      ...state,
+      index: 2,
+      routes: [state.routes[0], state.routes[1], state.routes[3], state.routes[2]],
+    }
+  );
+
+  expect(
+    router.getStateForAction(
+      state,
+      CommonActions.navigate({ name: 'p2', params: { preload: 2 }, pop: true }),
+      options
+    )
+  ).toEqual({
+    ...state,
+    index: 2,
+    routes: [state.routes[0], state.routes[1], state.routes[3], state.routes[2]],
+  });
+
+  expect(router.getStateForAction(state, StackActions.push('c'), options)).toEqual({
+    ...state,
+    index: 2,
+    routes: [
+      state.routes[0],
+      state.routes[1],
+      { key: 'c-test', name: 'c', params: undefined },
+      state.routes[2],
+      state.routes[3],
+    ],
+  });
+
+  expect(router.getStateForAction(state, StackActions.pop(), options)).toEqual({
+    ...state,
+    index: 0,
+    routes: [state.routes[0], state.routes[2], state.routes[3]],
   });
 });
 
