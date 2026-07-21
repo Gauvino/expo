@@ -3134,29 +3134,32 @@ test('removes routes by name while preserving the focused route instance', () =>
   });
 });
 
-test.each(['secret','nonExisting'])('handles route %p removal without changing state when no history entries match', (name:string) => {
-  const router = StackRouter({});
-  const state = {
-    stale: false as const,
-    type: 'stack' as const,
-    key: 'root',
-    index: 1,
-    routeNames: ['index', 'secret'],
-    routes: [
-      { key: 'index', name: 'index' },
-      { key: 'secret', name: 'secret' },
-    ],
-  };
+test.each(['secret', 'nonExisting'])(
+  'handles route %p removal without changing state when no history entries match',
+  (name: string) => {
+    const router = StackRouter({});
+    const state = {
+      stale: false as const,
+      type: 'stack' as const,
+      key: 'root',
+      index: 1,
+      routeNames: ['index', 'secret'],
+      routes: [
+        { key: 'index', name: 'index' },
+        { key: 'secret', name: 'secret' },
+      ],
+    };
 
-  expect(
-    router.getStateForAction(
-      state,
-      { type: 'REMOVE_ROUTES', payload: { routeNames: [name] } },
-      {
-        routeNames: state.routeNames,
-        routeParamList: {},
-        routeGetIdList: {},
-      }
-    )
-  ).toBe(state);
-});
+    expect(
+      router.getStateForAction(
+        state,
+        { type: 'REMOVE_ROUTES', payload: { routeNames: [name] } },
+        {
+          routeNames: state.routeNames,
+          routeParamList: {},
+          routeGetIdList: {},
+        }
+      )
+    ).toBe(state);
+  }
+);

@@ -205,7 +205,8 @@ it('strips web-only href attributes', () => {
       style={{ color: 'red' }}
       download="file.png"
       rel="noopener"
-      target="_blank">
+      target="_blank"
+    >
       Link
     </Link>
   );
@@ -451,7 +452,8 @@ test('can dynamically route using singular function', () => {
         <Link
           testID="link"
           href="/apple?id=1"
-          dangerouslySingular={(_, params) => params.id?.toString()}>
+          dangerouslySingular={(_, params) => params.id?.toString()}
+        >
           Slug
         </Link>
       ),
