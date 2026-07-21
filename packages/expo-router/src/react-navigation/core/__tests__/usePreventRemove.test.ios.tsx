@@ -5,6 +5,7 @@ import { BaseNavigationContainer } from '../BaseNavigationContainer';
 import { Screen } from '../Screen';
 import { createNavigationContainerRef } from '../createNavigationContainerRef';
 import { useNavigationBuilder } from '../useNavigationBuilder';
+import { getPreventableRoutes } from '../useOnPreventRemove';
 import { usePreventRemove } from '../usePreventRemove';
 import { MockRouterKey } from './__fixtures__/MockRouter';
 
@@ -18,6 +19,47 @@ beforeEach(() => {
   MockRouterKey.current = 0;
 
   require('nanoid/non-secure').__key = 0;
+});
+
+test('only active stack routes are preventable', () => {
+  const routes = [
+    { key: 'a', name: 'a' },
+    { key: 'b', name: 'b' },
+    { key: 'p1', name: 'p1' },
+    { key: 'p2', name: 'p2' },
+  ];
+
+  expect(
+    getPreventableRoutes({
+      stale: false,
+      type: 'stack',
+      key: 'stack',
+      index: 1,
+      routeNames: routes.map((route) => route.name),
+      routes,
+    })
+  ).toEqual(routes.slice(0, 2));
+
+  expect(
+    getPreventableRoutes({
+      stale: false,
+      type: 'tab',
+      key: 'tabs',
+      index: 1,
+      routeNames: routes.map((route) => route.name),
+      routes,
+    })
+  ).toEqual(routes);
+
+  expect(
+    getPreventableRoutes(
+      {
+        index: 0,
+        routes,
+      },
+      'stack'
+    )
+  ).toEqual(routes.slice(0, 1));
 });
 
 test("prevents removing a screen with 'usePreventRemove' hook", () => {
