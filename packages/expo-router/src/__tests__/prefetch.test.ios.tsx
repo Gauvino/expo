@@ -713,7 +713,7 @@ it('can prefetch a parent route', () => {
   });
 });
 
-it('can still use <Screen /> while prefetching in stack', () => {
+it('can update <Screen /> options while prefetching in stack', () => {
   const headerTitle = jest.fn(() => null);
   renderRouter({
     _layout: () => (
@@ -726,7 +726,7 @@ it('can still use <Screen /> while prefetching in stack', () => {
     second: () => {
       return (
         <>
-          <Stack.Screen options={{ title: 'Should only change after focus' }} />
+          <Stack.Screen options={{ title: 'Updated while preloaded' }} />
           <Text testID="second">Second</Text>
         </>
       );
@@ -738,10 +738,12 @@ it('can still use <Screen /> while prefetching in stack', () => {
     [{ tintColor: 'rgb(0, 122, 255)', children: 'index' }],
     [{ tintColor: 'rgb(0, 122, 255)', children: 'index' }],
     [{ tintColor: 'rgb(0, 122, 255)', children: 'custom-title' }],
+    [{ tintColor: 'rgb(0, 122, 255)', children: 'index' }],
+    [{ tintColor: 'rgb(0, 122, 255)', children: 'Updated while preloaded' }],
   ]);
 
   // Check that it actually prefetched the screen
-  expect(screen.UNSAFE_getByProps({ title: 'custom-title' })).toBeDefined();
+  expect(screen.UNSAFE_getByProps({ title: 'Updated while preloaded' })).toBeDefined();
 
   headerTitle.mockClear();
   act(() => router.push('/second'));
@@ -749,10 +751,15 @@ it('can still use <Screen /> while prefetching in stack', () => {
   expect(headerTitle.mock.calls).toStrictEqual([
     // Call after navigation
     [{ tintColor: 'rgb(0, 122, 255)', children: 'index' }],
-    [{ tintColor: 'rgb(0, 122, 255)', children: 'custom-title' }],
+    [{ tintColor: 'rgb(0, 122, 255)', children: 'Updated while preloaded' }],
     // Call from the <Stack.Screen />
     [{ tintColor: 'rgb(0, 122, 255)', children: 'index' }],
-    [{ tintColor: 'rgb(0, 122, 255)', children: 'Should only change after focus' }],
+    [
+      {
+        tintColor: 'rgb(0, 122, 255)',
+        children: 'Updated while preloaded',
+      },
+    ],
   ]);
 });
 
