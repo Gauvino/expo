@@ -480,7 +480,7 @@ jobs:
 
 ### `jobs.<job_id>.hooks`
 
-Some pre-packaged jobs support hooks to run additional steps before or after the main job action (for example, `maestro-cloud`, `maestro`, and `submit`). Hook names are job-specific. See the job's documentation for the available hook keys.
+Some pre-packaged jobs support hooks to run additional steps before or after the main job action (for example, `maestro-cloud`, `maestro`, and `submit`). Hook names are job-specific. See the job's documentation for the available hook keys. To set default hooks for all jobs in the workflow, use [`defaults.hooks`](#defaultshooks).
 
 ```yaml
 jobs:
@@ -517,6 +517,28 @@ jobs:
 ## `defaults`
 
 Parameters to use as defaults for all jobs defined in the workflow configuration.
+
+### `defaults.hooks`
+
+Default [hooks](#jobsjob_idhooks) for all jobs in the workflow. Each job runs the hook keys that apply to it and ignores the rest. A job-level hook key overrides the same key from `defaults.hooks`. To opt a single job out of a default hook, set the key to an empty array.
+
+```yaml
+defaults:
+  hooks:
+    before_install_node_modules:
+      - name: Configure private registry
+        run: echo "//npm.pkg.github.com/:_authToken=$GITHUB_TOKEN" >> .npmrc
+
+jobs:
+  build_app:
+    type: build
+    params:
+      platform: ios
+  publish_update:
+    type: update
+    hooks:
+      before_install_node_modules: [] # opt this job out of the default hook
+```
 
 ### `defaults.image`
 

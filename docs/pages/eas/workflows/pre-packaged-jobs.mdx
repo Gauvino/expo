@@ -39,8 +39,8 @@ jobs:
       message: string # optional
       refresh_ad_hoc_provisioning_profile: boolean # optional
     hooks:
-      before_install_node_modules: step[] # optional - steps to run before dependencies are installed.
-      after_install_node_modules: step[] # optional - steps to run after dependencies are installed.
+      before_install_node_modules: step[] # optional - steps to run before the build installs dependencies.
+      after_install_node_modules: step[] # optional - steps to run after the build installs dependencies.
 ```
 
 #### Parameters
@@ -918,8 +918,8 @@ jobs:
       private_key_path: string # optional
       upload_sentry_sourcemaps: boolean # optional - defaults to "try uploading, but don't fail the job if it fails"
     hooks:
-      before_update: step[] # optional - steps to run before the update is published.
-      after_update: step[] # optional - steps to run after the update is published.
+      before_update: step[] # optional - steps to run before publishing the update.
+      after_update: step[] # optional - steps to run after publishing the update.
 ```
 
 #### Environment variables
@@ -953,8 +953,8 @@ You can reference the following outputs in subsequent jobs:
 
 The following hooks are supported for the Update job:
 
-- `before_update`: steps to run before the update is published.
-- `after_update`: steps to run after the update is published. Files produced during publishing (for example, sourcemaps in the **dist** directory) are available to the hook steps.
+- `before_update`: steps to run before publishing the update.
+- `after_update`: steps to run after publishing the update. Hook steps can access files produced during publishing (for example, sourcemaps in the **dist** directory).
 
 See [`jobs.<job_id>.hooks`](/eas/workflows/syntax/#jobsjob_idhooks) for the general hooks syntax.
 
@@ -1036,7 +1036,7 @@ jobs:
 
 <Collapsible summary="Upload sourcemaps after publishing an update">
 
-This workflow publishes an update and then uploads the generated sourcemaps to an error tracking service (PostHog in this example). Sourcemaps are produced in the **dist** directory during publishing and are only available on the worker that ran the job, so uploading them must happen in an `after_update` hook rather than in a separate job. Hook steps inherit the job's environment, so credentials such as `POSTHOG_CLI_API_KEY` can be provided as [EAS environment variables](/eas/environment-variables/).
+This workflow publishes an update and then uploads the generated sourcemaps to an error tracking service (PostHog in this example). Publishing an update creates sourcemaps in the **dist** directory. These files only exist on the worker that runs the job, so the upload must happen in an `after_update` hook rather than in a separate job. Hook steps inherit the job's environment, so you can provide credentials such as `POSTHOG_CLI_API_KEY` as [EAS environment variables](/eas/environment-variables/).
 
 ```yaml .eas/workflows/update-with-sourcemaps.yml
 name: Update with sourcemaps
